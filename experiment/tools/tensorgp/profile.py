@@ -38,8 +38,8 @@ def get_max_size(m, d):
 ######################################################################## Profiling of program evaluation mechanism given by TensorGP.
 ########################################################################
 
-def r2(**kwargs):
-    """R-squared fitness function."""
+def rmse(**kwargs):
+    """RMSE fitness function."""
     population = kwargs.get('population')
     tensors = kwargs.get('tensors')
     target = kwargs.get('target'
@@ -195,7 +195,7 @@ for device in devices:
                             terminal_set=terminal_set,
                             target_dims=target_dims,
                             target=target,
-                            fitness_func=r2,
+                            fitness_func=rmse,
                             population_size=num_programs_per_size_bin,
                             min_domain=-10000,
                             max_domain=10000)
