@@ -317,7 +317,7 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     with open(f'{root_dir}/{name}/programs.hpp', 'w+') as f:
 
-        f.write(f'uint8_t programs[{num_bins}][{num_programs_per_bin}]'
+        f.write(f'uint8_t programs_{name}[{num_bins}][{num_programs_per_bin}]'
                 f'[{max_size+1}] = {{\n')
 
         for i in range(1, num_bins+1):
