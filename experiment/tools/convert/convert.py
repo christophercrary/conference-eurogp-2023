@@ -202,71 +202,71 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     ####################################################################
 
-    # For each size bin, convert `num_programs_per_bin` programs to 
-    # the relevant assembly language (tuple).
+    # # For each size bin, convert `num_programs_per_bin` programs to 
+    # # the relevant assembly language (tuple).
 
-    # Maximum number of program memory locations.
-    # An extra memory location is given for 'null' separators.
-    depth = (max_size+1)*num_programs_per_bin
+    # # Maximum number of program memory locations.
+    # # An extra memory location is given for 'null' separators.
+    # depth = (max_size+1)*num_programs_per_bin
 
-    # Address and data widths for assembly language, base 8.
-    addr_width = int(math.ceil(math.log(depth, 16)))
-    data_width = int(math.ceil(math.log(len(ps.assembly_language), 16)))
-    opcode_width = int(math.ceil(math.log(len(ps.assembly_language), 2)))
+    # # Address and data widths for assembly language, base 8.
+    # addr_width = int(math.ceil(math.log(depth, 16)))
+    # data_width = int(math.ceil(math.log(len(ps.assembly_language), 16)))
+    # opcode_width = int(math.ceil(math.log(len(ps.assembly_language), 2)))
 
-    num_bins = int(math.ceil(max_size/bin_size))
+    # num_bins = int(math.ceil(max_size/bin_size))
 
-    with open(f'{root_dir}/{name}/programs_tuples_pkg.vhd', 'w+') as f:
+    # with open(f'{root_dir}/{name}/programs_tuples_pkg.vhd', 'w+') as f:
 
-        # Write package header.
-        f.write(f'library gp;\n')
-        f.write(f'context gp.std_context;\n\n')
-        f.write(f'package programs_tuples_{name}_pkg is \n\n')
+    #     # Write package header.
+    #     f.write(f'library gp;\n')
+    #     f.write(f'context gp.std_context;\n\n')
+    #     f.write(f'package programs_tuples_{name}_pkg is \n\n')
 
-        f.write(f'  constant opcode_type : type_t := '
-                f'uint_type({opcode_width});\n')
-        f.write(f'  constant opcode_width : positive := '
-                f'get_width(opcode_type);\n\n')
-        f.write(f'  constant programs : tuple_array(0 to {num_bins-1})'
-            f'(0 to {depth-1})({opcode_width-1} downto 0) := (\n')
+    #     f.write(f'  constant opcode_type : type_t := '
+    #             f'uint_type({opcode_width});\n')
+    #     f.write(f'  constant opcode_width : positive := '
+    #             f'get_width(opcode_type);\n\n')
+    #     f.write(f'  constant programs : tuple_array(0 to {num_bins-1})'
+    #         f'(0 to {depth-1})({opcode_width-1} downto 0) := (\n')
 
-        for i in range(1, num_bins+1):
-            # Programs for bin `i`.
-            f.write(f'    -- Bin `{i}`...\n')
-            f.write(f'    {i-1} => (\n')
-            bin = programs[(i-1)*num_programs_per_bin:(i)*num_programs_per_bin]
+    #     for i in range(1, num_bins+1):
+    #         # Programs for bin `i`.
+    #         f.write(f'    -- Bin `{i}`...\n')
+    #         f.write(f'    {i-1} => (\n')
+    #         bin = programs[(i-1)*num_programs_per_bin:(i)*num_programs_per_bin]
 
-            # Write tuple data.
-            for j, program in enumerate(bin):
-                # For each program...
-                f.write(f'      -- Program {j}...\n')
-                for k, node in enumerate(program.preorder):
-                    # For each node...
-                    addr = j * (max_size+1) + k
-                    f.write(f'      {addr} => '
-                            f'to_slv(opcode_type, '
-                            f'16#{ps.opcode(node, "X")}#),\n')
+    #         # Write tuple data.
+    #         for j, program in enumerate(bin):
+    #             # For each program...
+    #             f.write(f'      -- Program {j}...\n')
+    #             for k, node in enumerate(program.preorder):
+    #                 # For each node...
+    #                 addr = j * (max_size+1) + k
+    #                 f.write(f'      {addr} => '
+    #                         f'to_slv(opcode_type, '
+    #                         f'16#{ps.opcode(node, "X")}#),\n')
 
-                # Add null.
-                addrl = j * (max_size+1) + (k+1)
-                addrh = (j+1) * (max_size + 1) - 1
-                f.write(f'      {addrl} to {addrh} => '
-                        f"(others => '0')")
-                if j < num_programs_per_bin - 1:
-                    f.write(',\n\n')
-                else:
-                    f.write('\n')
+    #             # Add null.
+    #             addrl = j * (max_size+1) + (k+1)
+    #             addrh = (j+1) * (max_size + 1) - 1
+    #             f.write(f'      {addrl} to {addrh} => '
+    #                     f"(others => '0')")
+    #             if j < num_programs_per_bin - 1:
+    #                 f.write(',\n\n')
+    #             else:
+    #                 f.write('\n')
                 
-            f.write('  )')
+    #         f.write('  )')
 
-            if i < num_bins:
-                f.write(',\n\n')
-            else:
-                f.write('\n')
+    #         if i < num_bins:
+    #             f.write(',\n\n')
+    #         else:
+    #             f.write('\n')
 
-        f.write(f');\n\n')
+    #     f.write(f');\n\n')
 
-        f.write(f'end package;')
+    #     f.write(f'end package;')
 
     ####################################################################
 
@@ -286,7 +286,8 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
             f.write(f'#include <limits>\n\n')
 
-            f.write(f'float fitnesses[{num_bins}][{num_programs_per_bin}] = '
+            f.write(f'float fitnesses_{name}_{nfc}'
+                    f'[{num_bins}][{num_programs_per_bin}] = '
                     f'{{\n')
 
             for j in range(1, num_bins+1):

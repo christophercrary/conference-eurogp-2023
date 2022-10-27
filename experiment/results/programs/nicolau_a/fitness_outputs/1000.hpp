@@ -1,6 +1,6 @@
 #include <limits>
 
-float fitnesses[32][128] = {
+float fitnesses_nicolau_a_1000[32][128] = {
   // Bin `1`...
   {
     0.5819404820847243,
