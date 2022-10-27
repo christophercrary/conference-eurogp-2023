@@ -45,23 +45,14 @@ def rmse(**kwargs):
     target = kwargs.get('target'
     )
 
-    # print('Population size:', len(population))
-    # print('Shape of tensors:', tf.shape(tensors))
-    # print('Shape of target:', tf.shape(target))
-
     fitness = []
     best_ind = 0
 
     max_fit = float('0')
 
     for i in range(len(tensors)):
-
-        # print(f'Tensors[{i}]:', tensors[i])
-        # print(f'Target:', target)
-
-        # fit = tf_r2(target, tensors[i]).numpy()
         fit = tf_rmse(target, tensors[i]).numpy()
-        # print('Fitness:', fit)
+        # print(f'Fitness: {fit}')
 
         if fit > max_fit:
             max_fit = fit
@@ -69,11 +60,6 @@ def rmse(**kwargs):
 
         fitness.append(fit)
         population[i]['fitness'] = fit
-
-        # print(f'Tensor[{i}]: {tensors[i]}')
-        # print(f'Target: {target}')
-
-    # print(f'`Length of `fitness: {len(fitness)}')
 
     return population, best_ind
 
@@ -178,7 +164,6 @@ for device in devices:
             for i in range(num_variables):
                 terminal_set.add_to_set(
                     f'v{i}', tf.cast(inputs_[:nfc, i], tf.float32))
-            terminal_set.remove_from_set('x')
 
             # Target for given number of fitness cases.
             target = tf.cast(tf.convert_to_tensor(target_[:nfc]), tf.float32)
@@ -197,8 +182,8 @@ for device in devices:
                             target=target,
                             fitness_func=rmse,
                             population_size=num_programs_per_size_bin,
-                            min_domain=-10000,
-                            max_domain=10000)
+                            domain = [-10000, 10000],
+                            codomain = [-10000, 10000])
 
             for i in range(num_size_bins):
                 # For each size bin, calculate the relevant statistics.

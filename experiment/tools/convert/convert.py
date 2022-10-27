@@ -156,49 +156,49 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     ####################################################################
 
-    # For each size bin, convert `num_programs_per_bin` programs to 
-    # the relevant assembly language.
+    # # For each size bin, convert `num_programs_per_bin` programs to 
+    # # the relevant assembly language.
 
-    # Maximum number of program memory locations.
-    # An extra memory location is given for 'null' separators.
-    depth = (max_size+1)*num_programs_per_bin
+    # # Maximum number of program memory locations.
+    # # An extra memory location is given for 'null' separators.
+    # depth = (max_size+1)*num_programs_per_bin
 
-    # Address and data widths for assembly language, base 16.
-    addr_width = int(math.ceil(math.log(depth, 16)))
-    data_width = int(math.ceil(math.log(len(ps.assembly_language), 16)))
+    # # Address and data widths for assembly language, base 16.
+    # addr_width = int(math.ceil(math.log(depth, 16)))
+    # data_width = int(math.ceil(math.log(len(ps.assembly_language), 16)))
 
-    for i in range(1, int(math.ceil(max_size/bin_size))+1):
-        # Programs for bin `i`.
-        bin = programs[(i-1)*num_programs_per_bin:(i)*num_programs_per_bin]
-        with open(
-            f'{root_dir}/{name}/mif/programs_bin{i}.mif', 'w+') as f:
-            # Write MIF header.
-            f.write(f'DEPTH = {depth};\n')
-            f.write(f'WIDTH = {data_width};\n')
-            f.write(f'ADDRESS RADIX = HEX;\n')
-            f.write(f'DATA RADIX = HEX;\n')
-            f.write(f'CONTENT\n')
-            f.write(f'BEGIN\n\n')
+    # for i in range(1, int(math.ceil(max_size/bin_size))+1):
+    #     # Programs for bin `i`.
+    #     bin = programs[(i-1)*num_programs_per_bin:(i)*num_programs_per_bin]
+    #     with open(
+    #         f'{root_dir}/{name}/mif/programs_bin{i}.mif', 'w+') as f:
+    #         # Write MIF header.
+    #         f.write(f'DEPTH = {depth};\n')
+    #         f.write(f'WIDTH = {data_width};\n')
+    #         f.write(f'ADDRESS RADIX = HEX;\n')
+    #         f.write(f'DATA RADIX = HEX;\n')
+    #         f.write(f'CONTENT\n')
+    #         f.write(f'BEGIN\n\n')
 
-            # Write MIF data.
-            for j, program in enumerate(bin):
-                # For each program...
-                for k, node in enumerate(program.preorder + ('null',)):
-                    # For each node...
-                    addr = j * (max_size+1) + k
-                    f.write(f'{addr:0{addr_width}X} : '
-                            f'{ps.opcode(node, "X")};\n')
-                if k < max_size:
-                    # The current program did not utilize all 
-                    # of its allocated memory; initialize the 
-                    # remainder of the relevant program memory 
-                    # locations to zero.
-                    addrl = j * (max_size+1) + (k+1)
-                    addrh = (j+1) * max_size + 1
-                    f.write(f'[{addrl:0{addr_width}X}..'
-                            f'{addrh:0{addr_width}X}] : '
-                            f'{0:0{data_width}X};\n')
-            f.write(f'\nEND;')
+    #         # Write MIF data.
+    #         for j, program in enumerate(bin):
+    #             # For each program...
+    #             for k, node in enumerate(program.preorder + ('null',)):
+    #                 # For each node...
+    #                 addr = j * (max_size+1) + k
+    #                 f.write(f'{addr:0{addr_width}X} : '
+    #                         f'{ps.opcode(node, "X")};\n')
+    #             if k < max_size:
+    #                 # The current program did not utilize all 
+    #                 # of its allocated memory; initialize the 
+    #                 # remainder of the relevant program memory 
+    #                 # locations to zero.
+    #                 addrl = j * (max_size+1) + (k+1)
+    #                 addrh = (j+1) * max_size + 1
+    #                 f.write(f'[{addrl:0{addr_width}X}..'
+    #                         f'{addrh:0{addr_width}X}] : '
+    #                         f'{0:0{data_width}X};\n')
+    #         f.write(f'\nEND;')
 
     ####################################################################
 
