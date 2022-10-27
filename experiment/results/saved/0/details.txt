@@ -1,0 +1,2 @@
+Full run, coarse-grained bin sizes of 32, 32, 31, 
+128 distinct random programs per size bin.
