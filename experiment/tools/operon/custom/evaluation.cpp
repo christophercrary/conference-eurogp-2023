@@ -37,13 +37,13 @@ namespace Test {
 
         // Number of times that nanobench is independently executed,
         // in order to generate a list of median average runtimes.
-        const int NB_NUM_GENERATIONS = 1;
+        const int NB_NUM_GENERATIONS = 11;
 
         // Number of epochs within a single nanobench run.
-        const int NB_NUM_EPOCHS = 3;
+        const int NB_NUM_EPOCHS = 1;
 
         // Number of iterations within a single nanobench epoch.
-        const int NB_NUM_ITERATIONS = 7500;
+        const int NB_NUM_ITERATIONS = 1;
 
         // File path to the relevant program strings.
         std::string prog_path = "../../../../results/programs/" + 
@@ -175,6 +175,8 @@ namespace Test {
             if (num_iterations < min_num_iterations) {
                 num_iterations = min_num_iterations;
             }
+
+            num_iterations = 1;
 
             // std::cout << "`num_generations`: " << num_generations;
             // std::cout << "\n`num_epochs`: " << num_epochs;

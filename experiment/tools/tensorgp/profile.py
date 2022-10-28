@@ -102,10 +102,10 @@ target_ = np.array(target_)
 # Number of times in which the `timeit.repeat` function is
 # called, in order to generate a list of median average
 # runtimes.
-num_epochs = 1
+num_epochs = 11
 
 # Value for the `repeat` argument of the `timeit.repeat` method.
-repeat = 3
+repeat = 1
 
 # Value for the `number` argument of the `timeit.repeat` method.
 number = 1

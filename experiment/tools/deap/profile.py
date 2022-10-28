@@ -362,7 +362,12 @@ def generate_program(gen_strategy, primitive_set, min_depth, max_depth,
 
 def add(x1, x2):
     """Return result of addition."""
-    return x1 + x2
+    x1, x2 = np.float32(x1), np.float32(x2)
+    res = np.add(x1, x2)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def aq(x1, x2):
     """Return result of analytical quotient.
@@ -371,49 +376,75 @@ def aq(x1, x2):
     'The use of an analytic quotient operator in genetic programming':  
     `aq(x1, x2) = (x1)/(sqrt(1+x2^(2)))`.
     """
-    try:
-        return (x1) / (math.sqrt(1 + x2 ** (2)))
-    except OverflowError:
-        return float("inf")
+    x1, x2 = np.float32(x1), np.float32(x2)
+    res = np.divide(x1, np.sqrt(np.add(1, np.square(x2))))
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def exp(x): 
     """Return result of exponentiation, base `e`."""
-    try:
-        return math.exp(x)
-    except OverflowError:
-        return float("inf")
+    x = np.float32(x)
+    res = np.exp(x)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def log(x):
     """Return result of protected logarithm, base `e`."""
-    if x != 0:
-        return math.log(abs(x))
+    x = np.float32(x)
+    res = np.log(np.abs(x)) if x != 0 else 0
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
     else:
-        return 0
+        return res
 
 def mul(x1, x2):
     """Return result of multiplication."""
-    return x1 * x2
+    x1, x2 = np.float32(x1), np.float32(x2)
+    res = np.multiply(x1, x2)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def sin(x):
     """Return result of sine."""
-    return math.sin(x)
+    x = np.float32(x)
+    res = np.sin(x)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def sqrt(x):
     """Return result of protected square root."""
-    return math.sqrt(abs(x))
-    # try:
-    #     return math.sqrt(x)
-    # except ValueError:
-    #     # Input is negative.
-    #     return 0
+    x = np.float32(x)
+    res = np.sqrt(np.abs(x))
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def sub(x1, x2):
     """Return result of subtraction."""
-    return x1 - x2
+    x1, x2 = np.float32(x1), np.float32(x2)
+    res = np.subtract(x1, x2)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 def tanh(x):
     """Return result of hyperbolic tangent."""
-    return math.tanh(x)
+    x = np.float32(x)
+    res = np.tanh(x)
+    if np.isinf(res) or np.isnan(res):
+        return np.float32(np.inf)
+    else:
+        return res
 
 
 ########################################################################
@@ -784,10 +815,10 @@ with open(f'{root_dir}/target.pkl', 'wb') as f:
 # Number of times in which the `timeit.repeat` function is
 # called, in order to generate a list of median average
 # runtimes.
-num_epochs = 1
+num_epochs = 11
 
 # Value for the `repeat` argument of the `timeit.repeat` method.
-repeat = 3
+repeat = 1
 
 # Value for the `number` argument of the `timeit.repeat` method.
 number = 1
