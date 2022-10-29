@@ -362,12 +362,13 @@ def generate_program(gen_strategy, primitive_set, min_depth, max_depth,
 
 def add(x1, x2):
     """Return result of addition."""
-    x1, x2 = np.float32(x1), np.float32(x2)
-    res = np.add(x1, x2)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x1, x2 = np.float32(x1), np.float32(x2)
+    # res = np.add(x1, x2)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.add(x1, x2)
 
 def aq(x1, x2):
     """Return result of analytical quotient.
@@ -376,75 +377,83 @@ def aq(x1, x2):
     'The use of an analytic quotient operator in genetic programming':  
     `aq(x1, x2) = (x1)/(sqrt(1+x2^(2)))`.
     """
-    x1, x2 = np.float32(x1), np.float32(x2)
-    res = np.divide(x1, np.sqrt(np.add(1, np.square(x2))))
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x1, x2 = np.float32(x1), np.float32(x2)
+    # res = np.divide(x1, np.sqrt(np.add(1, np.square(x2))))
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.divide(x1, np.sqrt(np.add(1, np.square(x2))))
 
 def exp(x): 
     """Return result of exponentiation, base `e`."""
-    x = np.float32(x)
-    res = np.exp(x)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x = np.float32(x)
+    # res = np.exp(x)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.exp(x)
 
 def log(x):
     """Return result of protected logarithm, base `e`."""
-    x = np.float32(x)
-    res = np.log(np.abs(x)) if x != 0 else 0
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x = np.float32(x)
+    # res = np.log(np.abs(x)) if x != 0 else 0
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.log(np.abs(x)) if x != 0 else 0
 
 def mul(x1, x2):
     """Return result of multiplication."""
-    x1, x2 = np.float32(x1), np.float32(x2)
-    res = np.multiply(x1, x2)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x1, x2 = np.float32(x1), np.float32(x2)
+    # res = np.multiply(x1, x2)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.multiply(x1, x2)
 
 def sin(x):
     """Return result of sine."""
-    x = np.float32(x)
-    res = np.sin(x)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x = np.float32(x)
+    # res = np.sin(x)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.sin(x)
 
 def sqrt(x):
     """Return result of protected square root."""
-    x = np.float32(x)
-    res = np.sqrt(np.abs(x))
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x = np.float32(x)
+    # res = np.sqrt(np.abs(x))
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.sqrt(np.abs(x))
 
 def sub(x1, x2):
     """Return result of subtraction."""
-    x1, x2 = np.float32(x1), np.float32(x2)
-    res = np.subtract(x1, x2)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x1, x2 = np.float32(x1), np.float32(x2)
+    # res = np.subtract(x1, x2)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.subtract(x1, x2)
 
 def tanh(x):
     """Return result of hyperbolic tangent."""
-    x = np.float32(x)
-    res = np.tanh(x)
-    if np.isinf(res) or np.isnan(res):
-        return np.float32(np.inf)
-    else:
-        return res
+    # x = np.float32(x)
+    # res = np.tanh(x)
+    # if np.isinf(res) or np.isnan(res):
+    #     return np.float32(np.inf)
+    # else:
+    #     return res
+    return np.tanh(x)
 
 
 ########################################################################
@@ -799,7 +808,7 @@ num_fitness_cases = (10, 100, 1000, 10000, 100000)
 # Random fitness case vector for maximum amount of fitness cases.
 inputs_ = np.array(
     [[random.random() for _ in range(max_num_variables)] 
-    for _ in range(max(num_fitness_cases))])
+    for _ in range(max(num_fitness_cases))], dtype='float32')
 
 # Preserve fitness cases for reference.
 with open(f'{root_dir}/inputs.pkl', 'wb') as f:
@@ -815,7 +824,7 @@ with open(f'{root_dir}/target.pkl', 'wb') as f:
 # Number of times in which the `timeit.repeat` function is
 # called, in order to generate a list of median average
 # runtimes.
-num_epochs = 11
+num_epochs = 1
 
 # Value for the `repeat` argument of the `timeit.repeat` method.
 repeat = 1
