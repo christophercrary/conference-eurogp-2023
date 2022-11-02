@@ -303,8 +303,8 @@ def old_tf_rmse(child1, child2):
 # The idea is that this is always the same, so compile
 @tf.function
 def tf_rmse(child1, child2):
-    # child1 = tf.scalar_mul(1 / 127.5, child1)
-    # child2 = tf.scalar_mul(1 / 127.5, child2)
+    child1 = tf.cast(child1, tf.float32)
+    child2 = tf.cast(child2, tf.float32)
     return tf.sqrt(tf.reduce_mean(tf.square(child1 - child2)))
 
 

@@ -10,12 +10,11 @@ import numpy as np
 from scipy.stats import iqr
 import tensorflow as tf
 
-sys.path.append(os.path.abspath(os.path.join('./', 'tensorgp')))
+sys.path.insert(1, './tensorgp')
 from tensorgp.engine import *
 
 # Useful path directory.
-root_dir = (f'{os.path.dirname(os.path.abspath(__file__))}/../../results/'
-            f'programs')
+root_dir = (f'{os.getcwd()}/../../results/programs')
 
 # Random seed, for reproducibility.
 seed = 37
@@ -42,8 +41,8 @@ def rmse(**kwargs):
     """RMSE fitness function."""
     population = kwargs.get('population')
     tensors = kwargs.get('tensors')
-    target = kwargs.get('target'
-    )
+    target = kwargs.get('target')
+    output_file = kwargs.get('f_path')
 
     fitness = []
     best_ind = 0
@@ -52,7 +51,7 @@ def rmse(**kwargs):
 
     for i in range(len(tensors)):
         fit = tf_rmse(target, tensors[i]).numpy()
-        # print(f'Fitness: {fit}')
+        # print(f'Fitness: {str(fit)}')
 
         if fit > max_fit:
             max_fit = fit
@@ -60,6 +59,11 @@ def rmse(**kwargs):
 
         fitness.append(fit)
         population[i]['fitness'] = fit
+
+    # Write fitness values to the specified file.
+    with open(f'{output_file}', 'a+') as f:
+        for fitness_ in fitness:
+            f.write(f'{str(fitness_)}\n')
 
     return population, best_ind
 
@@ -78,11 +82,11 @@ functions = {'add', 'aq', 'exp', 'log', 'mul',
 function_sets = {
     'nicolau_a': (4, 2, 9, 32),
     'nicolau_b': (6, 2, 7, 8),
-    'nicolau_c': (9, 2, 6, 4)
+    'nicolau_c': (9, 2, 7, 8)
 }
 
 # Number of programs per size bin.
-num_programs_per_size_bin = 128
+num_programs_per_bin = 128
 
 # Numbers of fitness cases.
 num_fitness_cases = (10, 100, 1000, 10000, 100000)
@@ -102,7 +106,7 @@ target_ = np.array(target_)
 # Number of times in which the `timeit.repeat` function is
 # called, in order to generate a list of median average
 # runtimes.
-num_epochs = 11
+num_epochs = 1
 
 # Value for the `repeat` argument of the `timeit.repeat` method.
 repeat = 1
@@ -144,6 +148,10 @@ for device in devices:
         with open(f'{root_dir}/{name}/programs_tensorgp.txt', 'r') as f:
             programs = f.readlines()
 
+        # Remove temporary results file, if it already exists.
+        if os.path.exists(f'{root_dir}/{name}/fitness_outputs/temp.txt'):
+            os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
+
         for nfc in num_fitness_cases:
             # For each number of fitness cases...
             print(f'Number of fitness cases: `{nfc}`')
@@ -181,9 +189,9 @@ for device in devices:
                             target_dims=target_dims,
                             target=target,
                             fitness_func=rmse,
-                            population_size=num_programs_per_size_bin,
+                            population_size=num_programs_per_bin,
                             domain = [-10000, 10000],
-                            codomain = [-10000, 10000])
+                            codomain = [-10000, 10000],)
 
             for i in range(num_size_bins):
                 # For each size bin, calculate the relevant statistics.
@@ -191,8 +199,8 @@ for device in devices:
 
                 # Population relevant to the current size bin.
                 population, *_ = engine.generate_pop_from_expr(
-                    programs[(i) * num_programs_per_size_bin:
-                             (i+1) * num_programs_per_size_bin])
+                    programs[(i) * num_programs_per_bin:
+                             (i+1) * num_programs_per_bin])
 
                 for _ in range(num_epochs):
                     # For each epoch...
@@ -203,7 +211,11 @@ for device in devices:
                     # where each represents a raw runtime after running
                     # the relevant code `number` times.
                     runtimes = timeit.Timer(
-                        'engine.fitness_func_wrap(population=population)',
+                        # f'engine.fitness_func_wrap(population=population)',
+                        f'engine.fitness_func_wrap(population=population,' +
+                        f'f_path="{root_dir}/{name}/fitness_outputs/' +
+                        f'temp.txt")',
+                        # f'{nfc}_temp.txt")',
                         globals=globals()).repeat(repeat=repeat, number=number)
 
                     # Average runtimes, taking into account `number`.
@@ -212,6 +224,45 @@ for device in devices:
                     # Calculate and append median average runtime.
                     med_avg_runtimes[-1][-1][-1][i].append(
                         np.median(avg_runtimes))
+
+            # Reformat the fitness output file to be a C++ 
+            # header file that is appropriate for other tools.
+            with open(f'{root_dir}/{name}/fitness_outputs/temp.txt', 
+                    'r') as f_r:
+                with open(
+                    f'{root_dir}/{name}/fitness_outputs/{nfc}.hpp', 'w+') as f:
+                    fitnesses = f_r.read().splitlines()
+
+                    f.write(f'#include <limits>\n\n')
+
+                    f.write(f'float fitnesses_{name}_{nfc}'
+                            f'[{num_size_bins}][{num_programs_per_bin}] = '
+                            f'{{\n')
+
+                    for j in range(1, num_size_bins+1):
+                        # Fitnesses for bin `i`.
+                        f.write(f'  // Bin `{j}`...\n')
+                        f.write(f'  {{\n')
+
+                        for k in range(num_programs_per_bin):
+                            # Write fitness output.
+                            fitness = fitnesses[num_programs_per_bin*(j-1) + k]
+                            fitness = fitness if fitness != float('inf') else (
+                                'std::numeric_limits<float>::infinity()')
+                            f.write(f'    {str(fitness)},\n')
+
+                        f.write(f'  }}')
+
+                        if j < num_size_bins:
+                            f.write(',\n\n')
+                        else:
+                            f.write('\n')
+
+                    f.write(f'}};\n\n')
+
+            # Remove temporary results file.
+            os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
+
 
 # Preserve results.
 with open(f'{root_dir}/../results_tensorgp.pkl', 'wb') as f:

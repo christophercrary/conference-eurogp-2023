@@ -122,6 +122,7 @@ namespace Test {
             Operon::Vector<Operon::Scalar> buf(range.Size());
             Operon::RandomGenerator rd(1234);
 
+
             // Nanobench evaluator.
             auto test = [&](nb::Bench& b, std::string const& name, 
                 int epochs, int epoch_iterations) {
@@ -136,51 +137,20 @@ namespace Test {
                         individuals.end(), sum, std::plus<> {},
                             [&](Operon::Individual& ind) {
                         auto id = executor.this_worker_id();
-                        auto fitness = evaluator(rd, ind, slots[id]).front();
+                        auto f = evaluator(rd, ind, slots[id]).front();
 
-                        // printf("Fitness: %f\n", fitness);
+                        // printf("Fitness: %f\n", f);
 
-                        return fitness;
+                        return f;
                     });
                     executor.run(taskflow).wait();
                     return sum;
                 });
             };
-            
-            const int max_fc_factor = 5;
-            int fc_factor = (int)(log10((double)(range.Size())));
-            // std::cout << "\n`range.Size()`: " << range.Size() << std::endl;
-            // std::cout << "\n`fc_factor`: " << fc_factor << std::endl;
 
             int num_generations = NB_NUM_GENERATIONS;
             int num_epochs = NB_NUM_EPOCHS;
-
-            // Scale number of iterations for `nanobench` such
-            // that lower size bins have more iterations and
-            // higher size bins have less iterations. Also take
-            // into account the total number of fitness cases.
-            // (Linear scaling is chosen for the former, and
-            // nonlinear scaling is chosen for the latter.)
-            int num_iterations = (NB_NUM_ITERATIONS * (num_size_bins-bin)
-                * (int)(pow((double)(max_fc_factor - (fc_factor - 1)), 2.0)))
-                / (num_size_bins) / (int)(pow((double)max_fc_factor, 2.0));
-
-            // Enforce a lower bound for number of iterations 
-            // when scaling. This lower bound is made to simply 
-            // depend on the total number of fitness cases.
-            int min_num_iterations = (2500 * 
-                (int)pow((double)(max_fc_factor - (fc_factor - 1)), 2.0))
-                / (int)(pow((double)max_fc_factor, 2.0));
-
-            if (num_iterations < min_num_iterations) {
-                num_iterations = min_num_iterations;
-            }
-
-            num_iterations = 1;
-
-            // std::cout << "`num_generations`: " << num_generations;
-            // std::cout << "\n`num_epochs`: " << num_epochs;
-            std::cout << "\n`num_iterations`: " << num_iterations << std::endl;
+            int num_iterations = NB_NUM_ITERATIONS;
 
             for (int gen = 0; gen < num_generations; gen++) {
                 test(outer_b, "RMSE", num_epochs, num_iterations);
@@ -212,8 +182,6 @@ namespace Test {
 
             out_file << "\n";
         }
-
-        return;
     }
 
     TEST_CASE("Node Evaluations Batch")
@@ -222,7 +190,7 @@ namespace Test {
 
         const int NUM_FUNCTION_SETS = 3;
 
-        const int NUM_PROGRAMS_PER_BIN = 128;
+        const int NUM_PROGRAMS_PER_BIN = 1024;
 
         std::string fitness_cases[NUM_FITNESS_CASE_AMOUNTS] = { 
             // "1000.csv" };
@@ -247,7 +215,7 @@ namespace Test {
             out_file.open(
                 "../../../../results/" + std::string("results_operon_") + 
                     function_sets[i] + ".csv");
-
+            
             for (int j = 0; j < NUM_FITNESS_CASE_AMOUNTS; j++) {
                 // For each number of fitness cases...
                 std::cout << "\nNumber of fitness cases: " << 
@@ -256,6 +224,7 @@ namespace Test {
                 get_results(
                     function_sets[i], fitness_cases[j],
                     NUM_PROGRAMS_PER_BIN, size_bins[i], out_file);
+
             }
 
             out_file.close();
