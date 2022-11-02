@@ -1,6 +1,8 @@
 # Generic.
 experiment/tools/operon/operon
 experiment/tools/tensorgp/tensorgp
+experiment/results/programs
+**.tar.gz
 **/build
 **/runs
 **.log

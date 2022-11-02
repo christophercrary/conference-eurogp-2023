@@ -60,10 +60,10 @@ def rmse(**kwargs):
         fitness.append(fit)
         population[i]['fitness'] = fit
 
-    # Write fitness values to the specified file.
-    with open(f'{output_file}', 'a+') as f:
-        for fitness_ in fitness:
-            f.write(f'{str(fitness_)}\n')
+    # # Write fitness values to the specified file.
+    # with open(f'{output_file}', 'a+') as f:
+    #     for fitness_ in fitness:
+    #         f.write(f'{str(fitness_)}\n')
 
     return population, best_ind
 
@@ -86,7 +86,7 @@ function_sets = {
 }
 
 # Number of programs per size bin.
-num_programs_per_bin = 128
+num_programs_per_bin = 1024
 
 # Numbers of fitness cases.
 num_fitness_cases = (10, 100, 1000, 10000, 100000)
@@ -148,9 +148,9 @@ for device in devices:
         with open(f'{root_dir}/{name}/programs_tensorgp.txt', 'r') as f:
             programs = f.readlines()
 
-        # Remove temporary results file, if it already exists.
-        if os.path.exists(f'{root_dir}/{name}/fitness_outputs/temp.txt'):
-            os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
+        # # Remove temporary results file, if it already exists.
+        # if os.path.exists(f'{root_dir}/{name}/fitness_outputs/temp.txt'):
+        #     os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
 
         for nfc in num_fitness_cases:
             # For each number of fitness cases...
@@ -211,10 +211,10 @@ for device in devices:
                     # where each represents a raw runtime after running
                     # the relevant code `number` times.
                     runtimes = timeit.Timer(
-                        # f'engine.fitness_func_wrap(population=population)',
-                        f'engine.fitness_func_wrap(population=population,' +
-                        f'f_path="{root_dir}/{name}/fitness_outputs/' +
-                        f'temp.txt")',
+                        f'engine.fitness_func_wrap(population=population)',
+                        # f'engine.fitness_func_wrap(population=population,' +
+                        # f'f_path="{root_dir}/{name}/fitness_outputs/' +
+                        # f'temp.txt")',
                         # f'{nfc}_temp.txt")',
                         globals=globals()).repeat(repeat=repeat, number=number)
 
@@ -225,43 +225,43 @@ for device in devices:
                     med_avg_runtimes[-1][-1][-1][i].append(
                         np.median(avg_runtimes))
 
-            # Reformat the fitness output file to be a C++ 
-            # header file that is appropriate for other tools.
-            with open(f'{root_dir}/{name}/fitness_outputs/temp.txt', 
-                    'r') as f_r:
-                with open(
-                    f'{root_dir}/{name}/fitness_outputs/{nfc}.hpp', 'w+') as f:
-                    fitnesses = f_r.read().splitlines()
+            # # Reformat the fitness output file to be a C++ 
+            # # header file that is appropriate for other tools.
+            # with open(f'{root_dir}/{name}/fitness_outputs/temp.txt', 
+            #         'r') as f_r:
+            #     with open(
+            #         f'{root_dir}/{name}/fitness_outputs/{nfc}.hpp', 'w+') as f:
+            #         fitnesses = f_r.read().splitlines()
 
-                    f.write(f'#include <limits>\n\n')
+            #         f.write(f'#include <limits>\n\n')
 
-                    f.write(f'float fitnesses_{name}_{nfc}'
-                            f'[{num_size_bins}][{num_programs_per_bin}] = '
-                            f'{{\n')
+            #         f.write(f'float fitnesses_{name}_{nfc}'
+            #                 f'[{num_size_bins}][{num_programs_per_bin}] = '
+            #                 f'{{\n')
 
-                    for j in range(1, num_size_bins+1):
-                        # Fitnesses for bin `i`.
-                        f.write(f'  // Bin `{j}`...\n')
-                        f.write(f'  {{\n')
+            #         for j in range(1, num_size_bins+1):
+            #             # Fitnesses for bin `i`.
+            #             f.write(f'  // Bin `{j}`...\n')
+            #             f.write(f'  {{\n')
 
-                        for k in range(num_programs_per_bin):
-                            # Write fitness output.
-                            fitness = fitnesses[num_programs_per_bin*(j-1) + k]
-                            fitness = fitness if fitness != float('inf') else (
-                                'std::numeric_limits<float>::infinity()')
-                            f.write(f'    {str(fitness)},\n')
+            #             for k in range(num_programs_per_bin):
+            #                 # Write fitness output.
+            #                 fitness = fitnesses[num_programs_per_bin*(j-1) + k]
+            #                 fitness = fitness if fitness != float('inf') else (
+            #                     'std::numeric_limits<float>::infinity()')
+            #                 f.write(f'    {str(fitness)},\n')
 
-                        f.write(f'  }}')
+            #             f.write(f'  }}')
 
-                        if j < num_size_bins:
-                            f.write(',\n\n')
-                        else:
-                            f.write('\n')
+            #             if j < num_size_bins:
+            #                 f.write(',\n\n')
+            #             else:
+            #                 f.write('\n')
 
-                    f.write(f'}};\n\n')
+            #         f.write(f'}};\n\n')
 
-            # Remove temporary results file.
-            os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
+            # # Remove temporary results file.
+            # os.remove(f'{root_dir}/{name}/fitness_outputs/temp.txt')
 
 
 # Preserve results.

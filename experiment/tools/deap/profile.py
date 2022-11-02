@@ -448,7 +448,7 @@ max_num_size_bins = max([int(math.ceil(
         zip(function_sets.items(), max_arities)])
 
 # Desired number of programs to be stored within each size bin.
-num_programs_per_size_bin = 128
+num_programs_per_size_bin = 1024
 
 # Program initialization strategy.
 gen_strategy = 'grow'
