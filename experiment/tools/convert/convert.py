@@ -80,7 +80,7 @@ sizes = ((1023, 32), (255, 8), (255, 8))
 num_fitness_cases = (10, 100, 1000, 10000, 100000)
 
 # Number of programs per size bin.
-num_programs_per_bin = 128
+num_programs_per_bin = 1024
 
 # Primitive sets.
 primitive_sets = {name: PrimitiveSet() for name in names}
@@ -261,7 +261,7 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     #     f.write(f'end package;')
 
-    ####################################################################
+    # ####################################################################
 
     # # Create C++ header file containing fitness outputs for each number 
     # # of fitness cases, for each function set.
@@ -304,7 +304,7 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     #         f.write(f'}};\n\n')
 
-    # ####################################################################
+    # # ####################################################################
 
     # # Create C++ header file containing programs for each function set.
 
@@ -348,4 +348,4 @@ for ((m, (name, ps)), (max_size, bin_size)) in zip(
 
     #     f.write(f'}};\n\n')
 
-    ####################################################################
+    # ####################################################################
