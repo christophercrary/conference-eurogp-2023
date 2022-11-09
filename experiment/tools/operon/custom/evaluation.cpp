@@ -29,32 +29,23 @@ namespace Test {
 
     namespace nb = ankerl::nanobench;
 
-    void get_results(std::string const& function_set, 
-        std::string const& fitness_case, int progs_per_bin, 
-        int num_size_bins, std::ofstream& out_file)
+    void get_results(std::string const& primitive_set, 
+        int n_fitness_cases, int n_bins, int n_programs, 
+        int n_runs, std::ofstream& results_file)
     {
         /* Calculate some profiling results. */
 
-        // Number of times that nanobench is independently executed,
-        // in order to generate a list of median average runtimes.
-        const int NB_NUM_GENERATIONS = 11;
-
-        // Number of epochs within a single nanobench run.
-        const int NB_NUM_EPOCHS = 1;
-
-        // Number of iterations within a single nanobench epoch.
-        const int NB_NUM_ITERATIONS = 1;
-
         // File path to the relevant program strings.
-        std::string prog_path = "../../../../results/programs/" + 
-            function_set + "/programs_operon.txt";
+        std::string program_file_path = "../../../../results/programs/" + 
+            primitive_set + "/programs_operon.txt";
 
         // File path to the relevant dataset.
-        std::string fit_path = "../../../../results/programs/" + 
-            function_set + "/fitness_cases/" + fitness_case;
+        std::string data_file_path = "../../../../results/programs/" + 
+            primitive_set + "/" + std::to_string(n_fitness_cases) + 
+            "/data.csv";
 
         // Object to contain the relevant dataset.
-        auto ds = Dataset(fit_path, true);
+        auto ds = Dataset(data_file_path, true);
 
         // used for parsing and printing
         robin_hood::unordered_flat_map<std::string, Operon::Hash> vars_map;
@@ -80,10 +71,11 @@ namespace Test {
             TrainingRange(range).TestRange(range);
 
         // File containing program strings.
-        std::ifstream file(prog_path);
+        std::ifstream file(program_file_path);
 
         std::string str;
 
+        // Create Taskflow executor with maximal number of threads.
         tf::Executor executor(std::thread::hardware_concurrency());
         std::vector<Operon::Vector<Operon::Scalar>> slots(
             executor.num_workers());
@@ -92,20 +84,14 @@ namespace Test {
         Operon::Interpreter interpreter;
         Operon::Evaluator<Operon::RMSE, false> evaluator(problem, interpreter);
 
-        for (int bin = 0; bin < num_size_bins; bin++) {
-            // For size bin `bin`...
-            auto time_ = std::chrono::system_clock::now();
-            auto time = std::chrono::system_clock::to_time_t(time_);
-            std::string t(std::ctime(&time));
-            t = t.substr(0, t.length() - 1);
-            std::cout << "(" << t << ") "
-                      << "Size bin `" << bin + 1 << "`...\n";
+        for (int bin = 0; bin < n_bins; bin++) {
+            // For each program bin...
 
-            // Vector to contain program strings for size bin `i`.
-            std::vector<Individual> individuals(progs_per_bin);
+            // Vector to contain program strings for bin.
+            std::vector<Individual> individuals(n_programs);
 
-            // Retrieve the relevant program strings for size bin `i`.
-            for (int i = 0; i < progs_per_bin; i++) {
+            // Retrieve the relevant program strings for the bin.
+            for (int i = 0; i < n_programs; i++) {
                 if (std::getline(file, str)) {
                     individuals[i].Genotype = Operon::InfixParser::Parse(
                         str, vars_map);
@@ -124,7 +110,7 @@ namespace Test {
 
 
             // Nanobench evaluator.
-            auto test = [&](nb::Bench& b, std::string const& name, 
+            auto experiment = [&](nb::Bench& b, std::string const& name, 
                 int epochs, int epoch_iterations) {
                 evaluator.SetLocalOptimizationIterations(0);
                 evaluator.SetBudget(std::numeric_limits<size_t>::max());
@@ -148,86 +134,80 @@ namespace Test {
                 });
             };
 
-            int num_generations = NB_NUM_GENERATIONS;
-            int num_epochs = NB_NUM_EPOCHS;
-            int num_iterations = NB_NUM_ITERATIONS;
+            const int n_epochs = 1;
+            const int n_iterations = 1;
 
-            for (int gen = 0; gen < num_generations; gen++) {
-                test(outer_b, "RMSE", num_epochs, num_iterations);
+            auto time_ = std::chrono::system_clock::now();
+            auto time = std::chrono::system_clock::to_time_t(time_);
+            std::string t(std::ctime(&time));
+            t = t.substr(0, t.length() - 1);
+            std::cout << "\n\n(" << t << ") " << "Operon: evaluating " <<
+                "programs for primitive set `" << primitive_set << "`, bin " 
+                << bin + 1 << ", " << n_fitness_cases << " fitness " <<
+                "cases...\n\n";
+
+            for (int run = 0; run < n_runs; run++) {
+                experiment(outer_b, "RMSE", n_epochs, n_iterations);
             }
 
-            // For the relevant size bin, print out a list of
-            // `NB_NUM_GENERATIONS` median runtimes calculated
-            // by running nanobench `NB_NUM_GENERATIONS` times.
-            // For each nanobench run, there were `NB_NUM_EPOCHS`
-            // epochs, and for each epoch, there were `NB_NUM_
-            // ITERATIONS` iterations.
-
-            std::string str_bin = std::to_string(bin);
-            out_file << "bin: " + str_bin + ",";
+            // For the relevant program bin, print out a list of
+            // `n_runs` runtimes calculated by running nanobench 
+            // experiment `n_runs` times.
             auto results = outer_b.results();
-
-            for (int i = 0; i < NB_NUM_GENERATIONS; i++) {
-                // Retrieve median runtime for each "generation".
+            for (int i = 0; i < n_runs; i++) {
+                // Retrieve elapsed runtime for each run.
                 double median = results[i].median(
                     nb::Result::Measure::elapsed);
 
-                // Write median runtime in terms of microseconds,
+                // Write runtime in terms of microseconds,
                 // to utilize more significant digits.
-                out_file << std::to_string(median * 1000000);
+                results_file << std::to_string(median * 1000000);
 
-                if (NB_NUM_GENERATIONS - i != 1)
-                    out_file << ",";
+                if (n_runs - i != 1)
+                    results_file << ",";
             }
 
-            out_file << "\n";
+            results_file << "\n";
         }
     }
 
     TEST_CASE("Node Evaluations Batch")
     {
-        const int NUM_FITNESS_CASE_AMOUNTS = 5;
+        const int n_primitive_sets = 3;
 
-        const int NUM_FUNCTION_SETS = 3;
-
-        const int NUM_PROGRAMS_PER_BIN = 1024;
-
-        std::string fitness_cases[NUM_FITNESS_CASE_AMOUNTS] = { 
-            // "1000.csv" };
-            "10.csv", "100.csv", "1000.csv", "10000.csv", "100000.csv" };
-
-        std::string fitness_cases_names[NUM_FITNESS_CASE_AMOUNTS] = { 
-            // "1000" };
-            "10", "100", "1000", "10000", "100000" };
-
-        std::string function_sets[NUM_FUNCTION_SETS] = { 
+        std::string primitive_sets[n_primitive_sets] = { 
             "nicolau_a", "nicolau_b", "nicolau_c" };
 
-        int size_bins[NUM_FUNCTION_SETS] = { 32, 32, 32 };
+        const int n_fitness_case_amounts = 2;
+        // const int n_fitness_case_amounts = 5;
+
+        int n_fitness_cases[n_fitness_case_amounts] = {
+            10, 100};
+            // 10, 100, 1000, 10000, 100000};
+
+        const int n_bins = 32;
+
+        const int n_programs = 1;
+
+        const int n_runs = 11;
 
         std::cout << "\n\nOperon build information: " << 
             Operon::Version() << "\n\n";
 
-        for (int i = 0; i < NUM_FUNCTION_SETS; i++) {
+        for (int i = 0; i < n_primitive_sets; i++) {
             // For each function set...
-
-            std::ofstream out_file;
-            out_file.open(
-                "../../../../results/" + std::string("results_operon_") + 
-                    function_sets[i] + ".csv");
+            std::ofstream results_file;
+            results_file.open(
+                "../../../../results/runtimes/operon/" + 
+                primitive_sets[i] + ".csv");
             
-            for (int j = 0; j < NUM_FITNESS_CASE_AMOUNTS; j++) {
+            for (int j = 0; j < n_fitness_case_amounts; j++) {
                 // For each number of fitness cases...
-                std::cout << "\nNumber of fitness cases: " << 
-                    fitness_cases_names[j] << "\n\n";
-
-                get_results(
-                    function_sets[i], fitness_cases[j],
-                    NUM_PROGRAMS_PER_BIN, size_bins[i], out_file);
-
+                get_results(primitive_sets[i], n_fitness_cases[j],
+                    n_bins, n_programs, n_runs, results_file);
             }
 
-            out_file.close();
+            results_file.close();
         }
     }
 
