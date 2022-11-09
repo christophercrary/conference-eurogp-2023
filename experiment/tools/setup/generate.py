@@ -6,6 +6,7 @@ import pickle
 import random
 
 import numpy as np
+from pathos.pools import ProcessPool
 
 from gp.hw.program import Program
 from gp.contexts.symbolic_regression.primitive_sets import \
@@ -33,10 +34,10 @@ n_fitness_cases = (10, 100, 1000, 10000, 100000)
 d = (9, 7, 7)
 
 # Number of program bins.
-n_bins = 32
+n_bins = 1
 
 # Number of programs per bin.
-n_programs = 1
+n_programs = 1024
 
 # Numbers of variables relevant to each primitive set.
 n_variables = [len(primitive_sets[name].variables) for name in primitive_sets]
@@ -47,11 +48,11 @@ print(f'({dt.datetime.now().ctime()}) Generating random '
 # Generate random input/target data.
 inputs = np.array(
     [[random.random() for _ in range(max(n_variables))] 
-        # for _ in range(max(n_fitness_cases))])
-        for _ in range(max(n_fitness_cases))], dtype='float32')
+        for _ in range(max(n_fitness_cases))])
+        # for _ in range(max(n_fitness_cases))], dtype='float32')
 target = np.array(
-    # [random.random() for _ in range(max(n_fitness_cases))])
-    [random.random() for _ in range(max(n_fitness_cases))], dtype='float32')
+    [random.random() for _ in range(max(n_fitness_cases))])
+    # [random.random() for _ in range(max(n_fitness_cases))], dtype='float32')
 
 # Dictionary of programs for each primitive set.
 programs = {name : [] for name in primitive_sets}
@@ -72,9 +73,9 @@ for (name, ps), d_ in zip(primitive_sets.items(), d):
         s_max = s_max_possible if i == n_bins - 1 else (i + 1) * n_sizes
 
         # Construct random program expressions for bin `i`.
-        programs[name].append([Program.generate(
-            ps, d_max=d_, s_max=s_max, d_min=0, s_min=s_min) 
-                for _ in range(n_programs)])
+        programs[name].append(Program.generate(
+            primitive_set=ps, d_max=d_, s_max=s_max, d_min=0, 
+            s_min=s_min, n_programs=n_programs, n_threads=-1))
 
     # Preserve information about program expressions.
     with open(f'{root_dir}/{name}/programs.txt', 'w+') as f:

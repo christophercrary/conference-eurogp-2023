@@ -3,6 +3,8 @@ import random
 import re
 import shlex
 
+from pathos.pools import ProcessPool
+
 from .node import Node
 
 class Program(list):
@@ -237,7 +239,7 @@ class Program(list):
         return Program(nodes)
 
     @staticmethod
-    def generate(primitive_set, d_max, s_max, d_min=0, s_min=1, trait='size'):
+    def _generate(primitive_set, d_max, s_max, d_min=0, s_min=1, trait='size'):
         """Generate a random program expression."""
         ps = primitive_set
 
@@ -412,3 +414,19 @@ class Program(list):
         else:
             # Construct a `Program` object from the chosen nodes.
             return Program.from_str(' '.join(names), ps)
+
+    @staticmethod
+    def generate(primitive_set, d_max, s_max, d_min=0, s_min=1, 
+        trait='size', n_programs=1, n_threads=1):
+        """Generate some number of random program expressions.
+        
+        Parallel processing is used based on the `n_threads` parameter.
+        """
+        if n_threads == -1:
+            # Use all available threads.
+            n_threads = None
+        with ProcessPool(n_threads) as pool:
+            programs = pool.map(lambda _ : Program._generate(
+                primitive_set=primitive_set, d_max=d_max, s_max=s_max, 
+                d_min=d_min, s_min=s_min, trait=trait), range(n_programs))
+        return programs

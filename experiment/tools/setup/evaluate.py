@@ -23,17 +23,14 @@ primitive_sets = {
 }
 
 # Numbers of fitness cases relevant to each primitive set.
-n_fitness_cases = (10, 100,)
-# n_fitness_cases = (10, 100, 1000, 10000, 100000)
-
-# Program tree depth constraints for each primitive set.
-d = (9, 7, 7)
+n_fitness_cases = (10, 100, 1000, 10000, 100000)
+# n_fitness_cases = (10, 100,)
 
 # Number of program bins.
 n_bins = 32
 
 # Number of programs per bin.
-n_programs = 1
+n_programs = 1024
 
 # Numbers of variables relevant to each primitive set.
 n_variables = [len(primitive_sets[name].variables) for name in primitive_sets]
@@ -41,14 +38,14 @@ n_variables = [len(primitive_sets[name].variables) for name in primitive_sets]
 # Load programs and input/target data.
 with open(f'{root_dir}/../setup.pkl', 'rb') as f:
     inputs, target, programs = pickle.load(f)
-inputs = np.asarray(inputs, dtype='float32')
-target = np.asarray(target, dtype='float32')
+inputs = np.asarray(inputs)
+target = np.asarray(target)
 
 # Dictionary to contain fitness results relevant to each primitive set.
 results = {name : [[] for _ in range(len(n_fitness_cases))] 
     for name in primitive_sets}
 
-for (name, ps), d_ in zip(primitive_sets.items(), d):
+for name, ps in primitive_sets.items():
     for i, nfc in enumerate(n_fitness_cases):
         # For number of fitness cases `nfc`...
 
@@ -62,7 +59,7 @@ for (name, ps), d_ in zip(primitive_sets.items(), d):
             target_ = target[:nfc]
 
             # Compute fitness values for each program.
-            outputs = evaluate(program_bin, input_, ps)
+            outputs = evaluate(program_bin, input_, ps, n_threads=-1)
             results[name][i].append([fitness(target_, output) 
                 for output in outputs])
 

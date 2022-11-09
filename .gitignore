@@ -3,6 +3,7 @@ experiment/tools/setup/examples
 experiment/tools/operon/operon
 experiment/tools/tensorgp/tensorgp
 experiment/results/programs
+**.pkl
 **.tar.gz
 **/build
 **/runs

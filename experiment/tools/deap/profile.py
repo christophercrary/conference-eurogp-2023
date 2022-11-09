@@ -52,17 +52,17 @@ primitive_sets = {
 }
 
 # Numbers of fitness cases.
-n_fitness_cases = (10, 100,)
-# n_fitness_cases = (10, 100, 1000, 10000, 100000)
+n_fitness_cases = (10, 100, 1000, 10000, 100000)
+# n_fitness_cases = (10, 100,)
 
 # Number of program bins.
 n_bins = 32
 
 # Number of programs per bin.
-n_programs = 1
+n_programs = 1024
 
 # Number of times in which experiments are run.
-n_runs = 11
+n_runs = 3
 
 # Runtimes for programs within each size bin, for each number 
 # of fitness cases, for each function set.

@@ -178,18 +178,18 @@ namespace Test {
         std::string primitive_sets[n_primitive_sets] = { 
             "nicolau_a", "nicolau_b", "nicolau_c" };
 
-        const int n_fitness_case_amounts = 2;
-        // const int n_fitness_case_amounts = 5;
+        const int n_fitness_case_amounts = 5;
+        // const int n_fitness_case_amounts = 2;
 
         int n_fitness_cases[n_fitness_case_amounts] = {
-            10, 100};
-            // 10, 100, 1000, 10000, 100000};
+            10, 100, 1000, 10000, 100000};
+            // 10, 100};
 
         const int n_bins = 32;
 
-        const int n_programs = 1;
+        const int n_programs = 1024;
 
-        const int n_runs = 11;
+        const int n_runs = 3;
 
         std::cout << "\n\nOperon build information: " << 
             Operon::Version() << "\n\n";

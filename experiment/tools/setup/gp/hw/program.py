@@ -74,15 +74,21 @@ class Program(program.Program):
                 for n in nodes])
 
     @staticmethod
-    def generate(primitive_set, d_max, s_max, d_min=0, s_min=1, trait='size'):
-        """Generate a random program expression."""
-        # Extract a `gp.core.program.Program` object, and convert
-        # all `gp.core.node.Node` objects within the program to
-        # `gp.hw.node.Node` objects.
-        nodes = program.Program.generate(
-            primitive_set, d_max, s_max, d_min, s_min, trait)[:]
-        return Program([Node(
-            opcode=n.opcode, depth=n.depth, size=n.size, parent=n.parent, 
-            value=n.value, name=n.name, arity=n.arity, function=n.function, 
-            terminal=n.terminal, variable=n.variable, constant=n.constant) 
-            for n in nodes])
+    def generate(primitive_set, d_max, s_max, d_min=0, s_min=1, trait='size',
+        n_programs=1, n_threads=1):
+        """Generate some amount of random program expressions."""
+        programs = []
+        programs_ = program.Program.generate(
+            primitive_set=primitive_set, d_max=d_max, s_max=s_max, 
+            d_min=d_min, s_min=s_min, trait=trait, n_programs=n_programs,
+            n_threads=n_threads)
+        for program_ in programs_:
+            # Convert all `gp.core.node.Node` objects within the program to
+            # `gp.hw.node.Node` objects.
+            nodes = program_[:]
+            programs.append(Program([Node(
+                opcode=n.opcode, depth=n.depth, size=n.size, parent=n.parent, 
+                value=n.value, name=n.name, arity=n.arity, function=n.function, 
+                terminal=n.terminal, variable=n.variable, constant=n.constant) 
+                for n in nodes]))
+        return programs
