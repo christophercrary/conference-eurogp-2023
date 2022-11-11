@@ -1,10 +1,16 @@
 """Fitness measures."""
-import numpy as np
+import math
+
+from sklearn.metrics import mean_squared_error, r2_score
 
 def mse(y_true, y_pred):
     """Mean-squared error."""
-    return np.mean(np.square(np.subtract(y_true, y_pred)))
+    return mean_squared_error(y_true, y_pred)
 
 def rmse(y_true, y_pred):
     """Root-mean-squared error."""
-    return np.sqrt(mse(y_true, y_pred))
+    return math.sqrt(mse(y_true, y_pred))
+
+def r2(y_true, y_pred):
+    """Coefficient of determination."""
+    return r2_score(y_true, y_pred)

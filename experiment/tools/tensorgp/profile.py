@@ -67,18 +67,20 @@ n_fitness_cases = (10, 100, 1000, 10000, 100000)
 n_bins = 32
 
 # Number of programs per bin.
-n_programs = 1024
+n_programs = 512
 
 # Number of times in which experiments are run.
-n_runs = 3
+n_runs = 1
 
 # Runtimes for programs within each size bin, for each number 
 # of fitness cases, for each primitive set, for each device.
 runtimes = []
 
 # Load input/target data.
-with open(f'{root_dir}/../setup.pkl', 'rb') as f:
-    inputs, target, *_ = pickle.load(f)
+with open(f'{root_dir}/../inputs.pkl', 'rb') as f:
+    inputs = pickle.load(f)
+with open(f'{root_dir}/../target.pkl', 'rb') as f:
+    target = pickle.load(f)
 inputs = np.asarray(inputs)
 target = np.asarray(target)
 

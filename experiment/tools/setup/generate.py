@@ -6,7 +6,6 @@ import pickle
 import random
 
 import numpy as np
-from pathos.pools import ProcessPool
 
 from gp.hw.program import Program
 from gp.contexts.symbolic_regression.primitive_sets import \
@@ -29,15 +28,16 @@ primitive_sets = {
 
 # Numbers of fitness cases relevant to each primitive set.
 n_fitness_cases = (10, 100, 1000, 10000, 100000)
+# n_fitness_cases = (10, 100,)
 
 # Program tree depth constraints for each primitive set.
 d = (9, 7, 7)
 
 # Number of program bins.
-n_bins = 1
+n_bins = 32
 
 # Number of programs per bin.
-n_programs = 1024
+n_programs = 512
 
 # Numbers of variables relevant to each primitive set.
 n_variables = [len(primitive_sets[name].variables) for name in primitive_sets]
@@ -49,13 +49,13 @@ print(f'({dt.datetime.now().ctime()}) Generating random '
 inputs = np.array(
     [[random.random() for _ in range(max(n_variables))] 
         for _ in range(max(n_fitness_cases))])
-        # for _ in range(max(n_fitness_cases))], dtype='float32')
 target = np.array(
     [random.random() for _ in range(max(n_fitness_cases))])
-    # [random.random() for _ in range(max(n_fitness_cases))], dtype='float32')
 
 # Dictionary of programs for each primitive set.
 programs = {name : [] for name in primitive_sets}
+
+print(f'\n')
 
 for (name, ps), d_ in zip(primitive_sets.items(), d):
     print(f'({dt.datetime.now().ctime()}) Generating random programs '
@@ -113,11 +113,14 @@ for (name, ps), d_ in zip(primitive_sets.items(), d):
             for i, row in enumerate(data):
                 for value in row[:-1]:
                     f.write(f'{str(value)},')
-                f.write(f'{str(row[-1])}')
-                if i < len(data)-1:
-                    f.write(f'\n')
+                f.write(f'{str(row[-1])}\n')
+                # NOTE: We need a newline at the end of the CSV file 
+                # for Operon to be able to parse it.
 
 # Pickle the programs and input/target data.
-results = [inputs, target, programs]
-with open(f'{root_dir}/../setup.pkl', 'wb') as f:
-    pickle.dump(results, f)
+with open(f'{root_dir}/../programs.pkl', 'wb') as f:
+    pickle.dump(programs, f)
+with open(f'{root_dir}/../inputs.pkl', 'wb') as f:
+    pickle.dump(inputs, f)
+with open(f'{root_dir}/../target.pkl', 'wb') as f:
+    pickle.dump(target, f)

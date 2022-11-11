@@ -5,7 +5,7 @@ cd tools
 cd setup
 python generate.py
 python convert.py
-python evaluate.py
+# python evaluate.py
 
 # Navigate back to the `experiment` directory.
 cd ..

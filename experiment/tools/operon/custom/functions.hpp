@@ -141,8 +141,9 @@ namespace Operon
         template<typename T>
         inline void operator()(T r, T a) { 
             
-            
-            r = a.abs().log(); }
+            if (a.isZero()) { r = (typename T::Scalar{0.0}); }
+            else { r = a.abs().log(); } }
+            // r = a.abs().log(); }
     };
 
     template<>
@@ -184,7 +185,7 @@ namespace Operon
     struct Function<NodeType::Sqrt>
     {
         template<typename T>
-        inline void operator()(T r, T a) { r = a.sqrt(); }
+        inline void operator()(T r, T a) { r = a.abs().sqrt(); }
     };
 
     template<>

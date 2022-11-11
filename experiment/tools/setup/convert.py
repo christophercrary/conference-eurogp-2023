@@ -45,8 +45,10 @@ primitive_sets = {
 }
 
 # Load programs and input/target data.
-with open(f'{root_dir}/../setup.pkl', 'rb') as f:
-    *_, programs = pickle.load(f)
+with open(f'{root_dir}/../programs.pkl', 'rb') as f:
+    programs = pickle.load(f)
+
+print(f'\n')
 
 for name, ps in primitive_sets.items():
     ps = primitive_sets[name]
@@ -58,7 +60,7 @@ for name, ps in primitive_sets.items():
         for i, program_bin in enumerate(programs[name]):
             for j, program in enumerate(program_bin):
                 f.write(f'{program.tensorgp_str}')
-                if i < len(program_bin) - 1:
+                if j < len(program_bin) - 1:
                     f.write(f'\n')
             if i < len(programs[name]) - 1:
                 f.write(f'\n')
@@ -68,7 +70,7 @@ for name, ps in primitive_sets.items():
         for i, program_bin in enumerate(programs[name]):
             for j, program in enumerate(program_bin):
                 f.write(f'{program.inorder_str}')
-                if i < len(program_bin) - 1:
+                if j < len(program_bin) - 1:
                     f.write(f'\n')
             if i < len(programs[name]) - 1:
                 f.write(f'\n')

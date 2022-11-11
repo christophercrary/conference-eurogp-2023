@@ -1,28 +1,26 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: Copyright 2019-2021 Heal Research
 
-#include <chrono>
+#include <cstdio>
 #include <ctime>
+#include <chrono>
 
 #include <doctest/doctest.h>
 #include <interpreter/dispatch_table.hpp>
 #include <thread>
 
 #include "core/dataset.hpp"
-#include "core/pset.hpp"
 #include "core/version.hpp"
 #include "interpreter/interpreter.hpp"
-#include "nanobench.h"
+#include "core/pset.hpp"
 #include "operators/creator.hpp"
 #include "operators/evaluator.hpp"
 #include "parser/infix.hpp"
+#include "nanobench.h"
 #include <fstream>
 #include <iostream>
+#include "taskflow/taskflow.hpp"
 #include <string.h>
-#if TF_MINOR_VERSION > 2
-#include <taskflow/algorithm/reduce.hpp>
-#endif
-#include <taskflow/taskflow.hpp>
 
 namespace Operon {
 namespace Test {
@@ -30,9 +28,10 @@ namespace Test {
     namespace nb = ankerl::nanobench;
 
     void get_results(std::string const& primitive_set, 
-        int n_fitness_cases, int n_bins, int n_programs, 
-        int n_runs, std::ofstream& results_file)
-    {
+            int n_fitness_cases, int n_bins, int n_programs, 
+            int n_runs, std::ofstream& results_file)
+        
+        {
         /* Calculate some profiling results. */
 
         // File path to the relevant program strings.
@@ -41,18 +40,15 @@ namespace Test {
 
         // File path to the relevant dataset.
         std::string data_file_path = "../../../../results/programs/" + 
-            primitive_set + "/" + std::to_string(n_fitness_cases) + 
-            "/data.csv";
+            primitive_set  + "/" + std::to_string(n_fitness_cases) + 
+            "/data.csv"; 
 
         // Object to contain the relevant dataset.
         auto ds = Dataset(data_file_path, true);
 
-        // used for parsing and printing
         robin_hood::unordered_flat_map<std::string, Operon::Hash> vars_map;
-        std::unordered_map<Operon::Hash, std::string> vars_names;
         for (auto const& v : ds.Variables()) {
             vars_map[v.Name] = v.Hash;
-            vars_names[v.Hash] = v.Name;
         }
 
         // Name for target vector.
@@ -62,7 +58,7 @@ namespace Test {
         auto variables = ds.Variables();
         std::vector<Variable> inputs;
         std::copy_if(
-            variables.begin(), variables.end(),
+            variables.begin(), variables.end(), 
             std::back_inserter(inputs), [&](auto const& v) { 
                 return v.Name != target; });
         Range range = { 0, ds.Rows() };
@@ -76,7 +72,8 @@ namespace Test {
         std::string str;
 
         // Create Taskflow executor with maximal number of threads.
-        tf::Executor executor(std::thread::hardware_concurrency());
+        tf::Executor executor(1);
+        // tf::Executor executor(std::thread::hardware_concurrency());
         std::vector<Operon::Vector<Operon::Scalar>> slots(
             executor.num_workers());
         for (auto& s : slots) { s.resize(range.Size()); }
@@ -84,9 +81,8 @@ namespace Test {
         Operon::Interpreter interpreter;
         Operon::Evaluator<Operon::RMSE, false> evaluator(problem, interpreter);
 
-        for (int bin = 0; bin < n_bins; bin++) {
-            // For each program bin...
-
+        for(int bin = 0; bin < n_bins; bin++)
+        {
             // Vector to contain program strings for bin.
             std::vector<Individual> individuals(n_programs);
 
@@ -99,7 +95,7 @@ namespace Test {
                 }
             }
 
-            nb::Bench outer_b;
+            nb::Bench outer_b; 
 
             auto totalNodes = std::transform_reduce(
                 individuals.cbegin(), individuals.cend(), 0UL, std::plus<>{}, 
@@ -108,8 +104,6 @@ namespace Test {
             Operon::Vector<Operon::Scalar> buf(range.Size());
             Operon::RandomGenerator rd(1234);
 
-
-            // Nanobench evaluator.
             auto experiment = [&](nb::Bench& b, std::string const& name, 
                 int epochs, int epoch_iterations) {
                 evaluator.SetLocalOptimizationIterations(0);
@@ -123,11 +117,11 @@ namespace Test {
                         individuals.end(), sum, std::plus<> {},
                             [&](Operon::Individual& ind) {
                         auto id = executor.this_worker_id();
-                        auto f = evaluator(rd, ind, slots[id]).front();
+                        auto fitness = evaluator(rd, ind, slots[id]).front();
 
-                        // printf("Fitness: %f\n", f);
+                        // std::cout << "\nFitness: " << fitness;
 
-                        return f;
+                        return fitness;
                     });
                     executor.run(taskflow).wait();
                     return sum;
@@ -146,40 +140,42 @@ namespace Test {
                 << bin + 1 << ", " << n_fitness_cases << " fitness " <<
                 "cases...\n\n";
 
-            for (int run = 0; run < n_runs; run++) {
+            for (int gen = 0; gen < n_runs; gen++) {
                 experiment(outer_b, "RMSE", n_epochs, n_iterations);
             }
-
+            
             // For the relevant program bin, print out a list of
             // `n_runs` runtimes calculated by running nanobench 
             // experiment `n_runs` times.
             auto results = outer_b.results();
-            for (int i = 0; i < n_runs; i++) {
-                // Retrieve elapsed runtime for each run.
-                double median = results[i].median(
-                    nb::Result::Measure::elapsed);
+            for (int i = 0; i < n_runs; i++)
+            {
+                // Retrieve median runtime for each "generation".
+                double median = results[i].median(nb::Result::Measure::elapsed);
 
-                // Write runtime in terms of microseconds,
+                // Write median runtime in terms of microseconds,
                 // to utilize more significant digits.
-                results_file << std::to_string(median * 1000000);
+                results_file << std::to_string(median*1000000);
 
                 if (n_runs - i != 1)
                     results_file << ",";
             }
 
-            results_file << "\n";
+            results_file <<"\n";
+            
         }
+
+        return;
     }
 
     TEST_CASE("Node Evaluations Batch")
     {
         const int n_primitive_sets = 3;
 
-        std::string primitive_sets[n_primitive_sets] = { 
-            "nicolau_a", "nicolau_b", "nicolau_c" };
+        std::string primitive_sets[n_primitive_sets] = 
+            {"nicolau_a", "nicolau_b", "nicolau_c"};
 
         const int n_fitness_case_amounts = 5;
-        // const int n_fitness_case_amounts = 2;
 
         int n_fitness_cases[n_fitness_case_amounts] = {
             10, 100, 1000, 10000, 100000};
@@ -187,28 +183,32 @@ namespace Test {
 
         const int n_bins = 32;
 
-        const int n_programs = 1024;
+        const int n_programs = 512;
 
-        const int n_runs = 3;
+        const int n_runs = 1;
 
-        std::cout << "\n\nOperon build information: " << 
-            Operon::Version() << "\n\n";
+        std::cout << "\n\nOperon build information: " << Operon::Version() <<
+            "\n\n";
 
-        for (int i = 0; i < n_primitive_sets; i++) {
+        for(int i = 0; i < n_primitive_sets; i++)
+        {
             // For each function set...
+
             std::ofstream results_file;
-            results_file.open(
-                "../../../../results/runtimes/operon/" + 
+            results_file.open("../../../../results/runtimes/operon/" + 
                 primitive_sets[i] + ".csv");
             
-            for (int j = 0; j < n_fitness_case_amounts; j++) {
-                // For each number of fitness cases...
+            for(int j = 0; j < n_fitness_case_amounts; j++)
+            {
                 get_results(primitive_sets[i], n_fitness_cases[j],
-                    n_bins, n_programs, n_runs, results_file);
+                    n_bins, n_programs, n_runs, results_file);    
             }
 
             results_file.close();
+            results_file.clear();
+
         }
+
     }
 
 } // namespace Test

@@ -157,7 +157,8 @@ def resolve_if_node(child1, child2, child3, dims=[]):
 
 
 def resolve_log_node(child1, dims=[]):
-    res = tf.where(child1 > 0, tf.math.log(child1), tf.constant(-1, tf.float32, dims))
+    res = tf.where(child1 != 0, tf.math.log(tf.math.abs(child1)), 
+        tf.constant(0, tf.float32, dims))
     return res
 
 
@@ -200,7 +201,8 @@ def resolve_sin_node(child1, dims=[]):
 
 
 def resolve_sqrt_node(child1, dims=[]):
-    return tf.where(child1 > 0, tf.math.sqrt(child1), tf.constant(0, tf.float32, dims))
+    return tf.math.sqrt(tf.math.abs(child1))
+    # return tf.where(child1 > 0, tf.math.sqrt(child1), tf.constant(0, tf.float32, dims))
 
 
 def resolve_sub_node(child1, child2, dims=[]):
