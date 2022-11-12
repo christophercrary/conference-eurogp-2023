@@ -185,7 +185,7 @@ namespace Test {
 
         const int n_programs = 512;
 
-        const int n_runs = 1;
+        const int n_runs = 11;
 
         std::cout << "\n\nOperon build information: " << Operon::Version() <<
             "\n\n";

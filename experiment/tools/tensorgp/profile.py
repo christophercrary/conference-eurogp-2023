@@ -24,7 +24,7 @@ def rmse(**kwargs):
     population = kwargs.get('population')
     tensors = kwargs.get('tensors')
     target = kwargs.get('target')
-    # output_file = kwargs.get('f_path')
+    output_file_path = kwargs.get('f_path')
 
     fitness = []
     best_ind = 0
@@ -41,6 +41,13 @@ def rmse(**kwargs):
 
         fitness.append(fit)
         population[i]['fitness'] = fit
+
+    # Write fitness values to the relevant file.
+    with open(f'{output_file_path}', 'a+') as f:
+        for i in range(len(tensors)):
+            f.write(f'{str(population[i]["fitness"])}')
+            if i < len(tensors) - 1:
+                f.write(f'\n')
 
     return population, best_ind
 
@@ -61,7 +68,6 @@ primitive_sets = {
 
 # Numbers of fitness cases.
 n_fitness_cases = (10, 100, 1000, 10000, 100000)
-# n_fitness_cases = (10, 100,)
 
 # Number of program bins.
 n_bins = 32
@@ -70,7 +76,7 @@ n_bins = 32
 n_programs = 512
 
 # Number of times in which experiments are run.
-n_runs = 1
+n_runs = 11
 
 # Runtimes for programs within each size bin, for each number 
 # of fitness cases, for each primitive set, for each device.
@@ -123,17 +129,25 @@ for device in devices:
             runtimes[-1][-1].append([[] for _ in range(n_bins)])
 
             # Create an appropriate TensorGP engine.
-            engine = Engine(debug=debug,
-                            seed=42,
-                            device=device,
-                            operators=ps.functions.keys(),
-                            terminal_set=terminal_set,
-                            target_dims=target_dims,
-                            target=target_,
-                            fitness_func=rmse,
-                            population_size=n_programs,
-                            domain = [-10000, 10000],
-                            codomain = [-10000, 10000],)
+            engine = Engine(
+                debug=debug,
+                seed=42,
+                device=device,
+                operators=ps.functions.keys(),
+                terminal_set=terminal_set,
+                target_dims=target_dims,
+                target=target_,
+                fitness_func=rmse,
+                population_size=n_programs,
+                domain = [-10000, 10000],
+                codomain = [-10000, 10000])
+
+            # Remove any pre-existing fitness output file relevant
+            # to the current primitive set and number of fitness
+            # cases, to prepare for new fitness outputs.
+            output_file_path = f'{root_dir}/{name}/{nfc}/fitness_tensorgp.csv'
+            if os.path.exists(output_file_path):
+                os.remove(output_file_path)
 
             for i in range(n_bins):
                 # For each size bin, calculate the relevant statistics.
@@ -148,7 +162,8 @@ for device in devices:
                 # Raw runtimes after running the `evaluate`
                 # function a total of `n_runs` times.
                 runtimes[-1][-1][-1][i] = timeit.Timer(
-                    f'engine.fitness_func_wrap(population=population)',
+                    f'engine.fitness_func_wrap(population=population,'
+                    f'f_path="{output_file_path}")',
                     globals=globals()).repeat(repeat=n_runs, number=1)
 
 # Preserve results.
