@@ -197,7 +197,8 @@ def resolve_sign_node(child1, dims=[]):
 
 
 def resolve_sin_node(child1, dims=[]):
-    return tf.math.sin(tf.scalar_mul(math.pi, child1))
+    return tf.math.sin(child1)
+    # return tf.math.sin(tf.scalar_mul(math.pi, child1))
 
 
 def resolve_sqrt_node(child1, dims=[]):

@@ -7,14 +7,17 @@ import timeit
 import numpy as np
 import tensorflow as tf
 
+# sys.path.insert(1, './experiment/tools/setup/')
 sys.path.insert(1, '../setup/')
 from gp.contexts.symbolic_regression.primitive_sets import \
     nicolau_a, nicolau_b, nicolau_c
 
+# sys.path.insert(1, './experiment/tools/tensorgp/tensorgp')
 sys.path.insert(1, './tensorgp')
 from tensorgp.engine import *
 
 # Useful path directory.
+# root_dir = (f'{os.getcwd()}/experiment/results/programs')
 root_dir = (f'{os.getcwd()}/../../results/programs')
 
 ########################################################################
@@ -45,9 +48,7 @@ def rmse(**kwargs):
     # Write fitness values to the relevant file.
     with open(f'{output_file_path}', 'a+') as f:
         for i in range(len(tensors)):
-            f.write(f'{str(population[i]["fitness"])}')
-            if i < len(tensors) - 1:
-                f.write(f'\n')
+            f.write(f'{str(population[i]["fitness"])}\n')
 
     return population, best_ind
 
@@ -62,8 +63,8 @@ devices = ('/cpu:0',)
 
 # Primitive sets.
 primitive_sets = {
-    'nicolau_a': nicolau_a,
-    'nicolau_b': nicolau_b,
+    # 'nicolau_a': nicolau_a,
+    # 'nicolau_b': nicolau_b,
     'nicolau_c': nicolau_c,
 }
 
@@ -140,8 +141,8 @@ for device in devices:
                 target=target_,
                 fitness_func=rmse,
                 population_size=n_programs,
-                domain = [-10000, 10000],
-                codomain = [-10000, 10000])
+                domain = [-1e1000, 1e1000],
+                codomain = [-1e1000, 1e1000])
 
             # Remove any pre-existing fitness output file relevant
             # to the current primitive set and number of fitness
