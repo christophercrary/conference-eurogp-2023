@@ -2,7 +2,7 @@
 cd tools
 
 # Profile DEAP.
-cd ../deap
+cd deap
 python profile.py
 
 # Profile TensorGP.
