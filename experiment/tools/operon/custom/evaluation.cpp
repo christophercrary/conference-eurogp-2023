@@ -72,8 +72,8 @@ namespace Test {
         std::string str;
 
         // Create Taskflow executor with maximal number of threads.
-        tf::Executor executor(1);
-        // tf::Executor executor(std::thread::hardware_concurrency());
+        // tf::Executor executor(1);
+        tf::Executor executor(std::thread::hardware_concurrency());
         std::vector<Operon::Vector<Operon::Scalar>> slots(
             executor.num_workers());
         for (auto& s : slots) { s.resize(range.Size()); }
@@ -185,7 +185,7 @@ namespace Test {
 
         const int n_programs = 512;
 
-        const int n_runs = 1;
+        const int n_runs = 11;
 
         std::cout << "\n\nOperon build information: " << Operon::Version() <<
             "\n\n";
