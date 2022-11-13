@@ -58,8 +58,9 @@ def rmse(**kwargs):
 debug = 0
 
 # Computing devices to utilize.
-devices = ('/CPU:0', '/GPU:0')
+devices = ('/cpu:0', '/gpu:0')
 # devices = ('/cpu:0',)
+# devices = ('/gpu:0',)
 
 # Primitive sets.
 primitive_sets = {
@@ -69,7 +70,8 @@ primitive_sets = {
 }
 
 # Numbers of fitness cases.
-n_fitness_cases = (10, 100, 1000, 10000, 100000)
+n_fitness_cases = (10,)
+# n_fitness_cases = (10, 100, 1000, 10000, 100000)
 
 # Number of program bins.
 n_bins = 32
@@ -169,5 +171,12 @@ for device in devices:
                     globals=globals()).repeat(repeat=n_runs, number=1)
 
 # Preserve results.
-with open(f'{root_dir}/../runtimes/tensorgp/results.pkl', 'wb') as f:
-    pickle.dump(runtimes, f)
+for i, name in enumerate(devices):
+    if 'cpu' in name:
+        with open(
+            f'{root_dir}/../runtimes/tensorgp/results_cpu.pkl', 'wb') as f:
+            pickle.dump(runtimes[i], f)
+    elif 'gpu' in name:
+        with open(
+            f'{root_dir}/../runtimes/tensorgp/results_gpu.pkl', 'wb') as f:
+            pickle.dump(runtimes[i], f)
