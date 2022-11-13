@@ -58,13 +58,13 @@ def rmse(**kwargs):
 debug = 0
 
 # Computing devices to utilize.
-devices = ('/cpu:0',)
-# devices = ('/cpu:0', '/gpu:0')
+devices = ('/CPU:0', '/GPU:0')
+# devices = ('/cpu:0',)
 
 # Primitive sets.
 primitive_sets = {
-    # 'nicolau_a': nicolau_a,
-    # 'nicolau_b': nicolau_b,
+    'nicolau_a': nicolau_a,
+    'nicolau_b': nicolau_b,
     'nicolau_c': nicolau_c,
 }
 
