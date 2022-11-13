@@ -70,8 +70,8 @@ primitive_sets = {
 }
 
 # Numbers of fitness cases.
-n_fitness_cases = (10,)
-# n_fitness_cases = (10, 100, 1000, 10000, 100000)
+n_fitness_cases = (10, 100, 1000, 10000, 100000)
+# n_fitness_cases = (10,)
 
 # Number of program bins.
 n_bins = 32
