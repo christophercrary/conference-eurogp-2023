@@ -4,10 +4,9 @@ This repository provides a means to profile (i.e., benchmark) the evaluation met
 are *not* included when profiling——only mechanisms for calculating
 "fitness."
 
-This repository was originally created for the paper 
-"Work-in-Progress: Toward a Robust, Reconfigurable Hardware
-Accelerator for Tree-Based Genetic Programming," by Crary et al., 
-which compared the evaluation performance of an initial FPGA-based GP hardware accelerator with that of the GP software tools *DEAP* (version 1.3), *TensorGP* (Git revision d75fb6), and *Operon* (Git revision 9e7ee4).
+This repository was created for the EuroGP 2023 conference paper 
+"Using FPGA Devices to Accelerate Tree-Based Genetic Programming: A Preliminary Exploration with Recent Technologies," by Crary et al., 
+which compared the evaluation performance of an initial FPGA-based GP hardware accelerator with that of the GP software tools *DEAP* (version 1.3), *TensorGP* (Git revision 09e6d0), and *Operon* (Git revision 9e7ee4).
 
 ## Included Tools
 
@@ -20,11 +19,12 @@ click [here](https://cdv.dei.uc.pt/wp-content/uploads/2021/04/baeta2021tensorgp.
 - [Operon](https://github.com/heal-research/operon) - for the original paper,
 click [here](https://dl.acm.org/doi/pdf/10.1145/3377929.3398099).
 
+Source code for the FPGA accelerator is not provided at this time, although the architecture is described at length in the aforementioned paper, "Using FPGA Devices to Accelerate Tree-Based Genetic Programming: A Preliminary Exploration with Recent Technologies."
+
 
 ## Profiling
 By default, the repository already contains the results
-published in the aforementioned paper, "Work-in-Progress: Toward a Robust, 
-Reconfigurable Hardware Accelerator for Tree-Based Genetic Programming."
+published in the relevant conference paper.
 These results are contained in the `experiment/results` directory and
 can be viewed by running the `experiment/tools/stats.ipynb` Jupyter Notebook file.
 
