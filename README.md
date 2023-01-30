@@ -26,9 +26,9 @@ Source code for the FPGA accelerator is not provided at this time, although the 
 By default, the repository already contains the results
 published in the relevant conference paper.
 These results are contained in the `experiment/results` directory and
-can be viewed by running the `experiment/tools/stats.ipynb` Jupyter Notebook file.
+can be viewed with the `experiment/tools/stats.ipynb` Jupyter Notebook file.
 
-If so desired, after successfully completing installation, you may run 
+If so desired, after successfully completing installation (as described below), you may run 
 the entire profiling suite by executing the following within a shell 
 program, after having navigated to the repository directory within the shell:
 
@@ -41,15 +41,15 @@ After the `run.sh` script fully executes, to view some relevant statistics, run 
 
 ## Installation instructions
 
-The following has been verified via Ubuntu 20.04 and CentOS 7. It is likely that other Linux distributions are supported, but it is unlikely that Windows and MacOS operating systems are readily supported.
+The following has been verified via CentOS 7. It is likely that other Linux distributions are supported, but it is unlikely that Windows and MacOS operating systems are readily supported.
 
 ### Prerequisites
 - Ensure that some Conda package management system 
 (e.g., [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) 
 is installed on the relevant machine.
-- Download and extract the latest software release from GitHub.
+- Download the latest software release from GitHub. Ignore the `data.tar.gz` file for now.
 
-Upon extracting the code repository, set up the relevant Conda environment
+Upon extracting the source code, set up the relevant Conda environment
 and tools by executing the following within
 a shell program, after having navigated to the repository directory
 within the shell:
@@ -68,4 +68,4 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX_1/pkgs/cudatoolkit-11.2.2-hbe64b41_10/lib:$
 
 (After running any experiments, you will likely need to restart your shell to reset the `$LD_LIBRARY_PATH` environment variable.)
 
-Lastly, extract and copy the contents of the `programs.tar.gz` file to the `experiment/results` folder. These contents provide the random programs utilized for the experiments, which took up too much space to be stored directly on GitHub.
+Lastly, extract and copy the contents of the `data.tar.gz` file from the software release to the `experiment/results` folder. These file contents provide the random programs, inputs, and outputs utilized for the experiments.
