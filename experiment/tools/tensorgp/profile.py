@@ -80,7 +80,7 @@ n_bins = 32
 n_programs = 512
 
 # Number of times in which experiments are run.
-n_runs = 1
+n_runs = 11
 
 # Runtimes for programs within each size bin, for each number 
 # of fitness cases, for each primitive set, for each device.

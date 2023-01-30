@@ -3,7 +3,9 @@ experiment/tools/setup/examples
 experiment/tools/operon/operon
 experiment/tools/tensorgp/tensorgp
 experiment/results/programs
+experiment/results/graphics
 **.pkl
+!results*.pkl
 **.tar.gz
 **/build
 **/runs
@@ -25,4 +27,3 @@ experiment/results/programs
 
 # VSCode
 **.vscode
-

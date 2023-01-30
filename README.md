@@ -47,9 +47,9 @@ The following has been verified via Ubuntu 20.04 and CentOS 7. It is likely that
 - Ensure that some Conda package management system 
 (e.g., [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) 
 is installed on the relevant machine.
-- Clone this repository onto the relevant machine.
+- Download and extract the latest software release from GitHub.
 
-Upon cloning the repository, set up the relevant Conda environment
+Upon extracting the code repository, set up the relevant Conda environment
 and tools by executing the following within
 a shell program, after having navigated to the repository directory
 within the shell:
@@ -60,10 +60,12 @@ conda activate conference-eurogp-2023
 bash install.sh
 ```
 
-Lastly, to ensure that `tensorflow` can successfully utilize a GPU within the `conda` environment, you will likely need to prepend the following CUDA paths to the `$LD_LIBRARY_PATH` environment variable:
+Then, to ensure that `tensorflow` can successfully utilize a GPU within the `conda` environment, you will likely need to prepend the following CUDA paths to the `$LD_LIBRARY_PATH` environment variable:
 
 ```
 export LD_LIBRARY_PATH=$CONDA_PREFIX_1/pkgs/cudatoolkit-11.2.2-hbe64b41_10/lib:$CONDA_PREFIX_1/envs/tensorgp-test/lib:$LD_LIBRARY_PATH
 ```
 
-After running any experiments, you will likely need to restart your shell to reset the `$LD_LIBRARY_PATH` environment variable.
+(After running any experiments, you will likely need to restart your shell to reset the `$LD_LIBRARY_PATH` environment variable.)
+
+Lastly, extract and copy the contents of the `programs.tar.gz` file to the `experiment/results` folder. These contents provide the random programs utilized for the experiments, which took up too much space to be stored directly on GitHub.
