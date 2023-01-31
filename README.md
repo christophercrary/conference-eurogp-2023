@@ -61,7 +61,7 @@ pip install -r requirements.txt
 bash install.sh
 ```
 
-To finish installation, extract and copy the contents of the `data.tar.gz` file from the software release to the `experiment/results` folder. These file contents provide the random programs, inputs, and outputs utilized by the experiments.
+To finish installation, extract and copy the contents of the `data.tar.gz` file from the software release (i.e., the one folder and three `.pkl` files) and paste them within the `experiment/results` folder. These contents provide the random programs, inputs, and outputs utilized by the experiments.
 
 **NOTE:** After copying the contents of the `data.tar.gz` file to the `experiment/results` folder, you may need to change file permissions for the relevant `.pkl` files. One way of doing so is by executing the following:
 
